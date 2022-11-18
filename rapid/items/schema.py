@@ -91,10 +91,10 @@ class Schema:
         self.columns = self._format_columns(columns)
 
     def _format_columns(self, columns: Union[List[Column], List[dict]]) -> List[Column]:
-        if all([isinstance(col, Column) for col in columns]):
+        if all(isinstance(col, Column) for col in columns):
             return columns
 
-        elif all([isinstance(col, dict) for col in columns]):
+        if all(isinstance(col, dict) for col in columns):
             return [
                 Column(
                     name=col["name"],
@@ -105,10 +105,8 @@ class Schema:
                 )
                 for col in columns
             ]
-        else:
-            raise SchemaInitialisationException(
-                "The columns are not of the expected type"
-            )
+
+        raise SchemaInitialisationException("The columns are not of the expected type")
 
     def to_dict(self):
         return {
@@ -133,7 +131,7 @@ class Schema:
 
     def update(self, rapid: Rapid):
         schema = self.to_dict()
-        response = requests.put(
+        requests.put(
             f"{rapid.auth.url}/schema",
             data=json.dumps(schema),
             headers=rapid.generate_headers(),

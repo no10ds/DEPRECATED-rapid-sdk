@@ -10,8 +10,8 @@ load_dotenv()
 
 RAPID_URL = "https://TEST_DOMAIN"
 RAPID_CLIENT_ID = "1234567890"
-RAPID_CLIENT_SECRET = "qwertyuiopasdfghjkl;'"
-RAPID_TOKEN = "TOKEN"
+RAPID_CLIENT_SECRET = "qwertyuiopasdfghjkl;'"  # nosec
+RAPID_TOKEN = "TOKEN"  # nosec
 
 
 @pytest.fixture

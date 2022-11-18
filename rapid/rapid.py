@@ -27,8 +27,8 @@ class Rapid:
         )
         return json.loads(response.content.decode("utf-8"))
 
-    def fetch_job_progress(self, id: str):
-        url = f"{self.auth.url}/jobs/{id}"
+    def fetch_job_progress(self, _id: str):
+        url = f"{self.auth.url}/jobs/{_id}"
         response = requests.get(
             url,
             headers=self.generate_headers(),
@@ -38,13 +38,13 @@ class Rapid:
             return data
         raise UnableToFetchJobStatusException("Could not check job status", data)
 
-    def wait_for_job_outcome(self, id: str, interval: int = 1):
+    def wait_for_job_outcome(self, _id: str, interval: int = 1):
         while True:
-            progress = self.fetch_job_progress(id)
+            progress = self.fetch_job_progress(_id)
             status = progress["status"]
             if status == "SUCCESS":
                 return None
-            elif status == "FAILED":
+            if status == "FAILED":
                 raise JobFailedException("Upload failed", progress)
             time.sleep(interval)
 

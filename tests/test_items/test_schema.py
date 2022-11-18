@@ -1,4 +1,5 @@
 import pytest
+from requests_mock import Mocker
 
 from rapid import Rapid
 from rapid.items.schema import Schema, SchemaMetadata, Column, Owner, SensitivityLevel
@@ -9,7 +10,6 @@ from rapid.exceptions import (
 )
 
 from tests.conftest import RAPID_URL
-from requests_mock import Mocker
 
 
 DUMMY_COLUMNS = [
@@ -42,7 +42,7 @@ def schema():
 
 class TestSchema:
     def test_format_columns_when_dict(self):
-        input = [
+        _input = [
             {
                 "name": "column_a",
                 "partition_index": None,
@@ -61,7 +61,7 @@ class TestSchema:
 
         expected = DUMMY_COLUMNS
 
-        schema = Schema(None, input)
+        schema = Schema(None, _input)
         assert schema.columns == expected
 
     def test_format_columns_when_columns(self):
@@ -69,18 +69,18 @@ class TestSchema:
         assert schema.columns == DUMMY_COLUMNS
 
     def test_format_columns_when_neither(self):
-        input = [
+        _input = [
             1234,
             1234,
         ]
 
         with pytest.raises(SchemaInitialisationException):
-            Schema(None, input)
+            Schema(None, _input)
 
     def test_create_success(self, requests_mock: Mocker, rapid: Rapid, schema: Schema):
         requests_mock.post(f"{RAPID_URL}/schema")
         schema.create(rapid)
-        requests_mock.call_count == 1
+        assert requests_mock.call_count == 1
         assert requests_mock.last_request.json() == schema.to_dict()
 
     def test_create_schema_already_exists(
@@ -89,7 +89,7 @@ class TestSchema:
         requests_mock.post(f"{RAPID_URL}/schema", status_code=409)
         with pytest.raises(SchemaAlreadyExistsException):
             schema.create(rapid)
-            requests_mock.call_count == 1
+            assert requests_mock.call_count == 1
             assert requests_mock.last_request.json() == schema.to_dict()
 
     def test_create_failure(self, requests_mock: Mocker, rapid: Rapid, schema: Schema):
@@ -98,5 +98,5 @@ class TestSchema:
         )
         with pytest.raises(SchemaCreateFailedException):
             schema.create(rapid)
-            requests_mock.call_count == 1
+            assert requests_mock.call_count == 1
             assert requests_mock.last_request.json() == schema.to_dict()

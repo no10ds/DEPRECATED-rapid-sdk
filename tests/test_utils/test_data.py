@@ -58,7 +58,8 @@ class TestUtils:
             ],
         }
         requests_mock.post(
-            f"{RAPID_URL}/schema/{metadata.sensitivity}/{metadata.domain}/{metadata.dataset}/generate",
+            f"{RAPID_URL}/schema/{metadata.sensitivity}/{metadata.domain}"
+            + f"/{metadata.dataset}/generate",
             json=mock_response,
         )
         requests_mock.post(

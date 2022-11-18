@@ -8,7 +8,7 @@ from rapid.exceptions import AuthenticationErrorException, CannotFindCredentialE
 
 
 class MockRequestResponse:
-    def __init__(self, status_code: int = 200, content={}):
+    def __init__(self, status_code: int = 200, content=None):
         self.status_code = status_code
         self.content = content
 

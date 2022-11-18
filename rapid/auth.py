@@ -7,7 +7,7 @@ from requests.auth import HTTPBasicAuth
 from rapid.exceptions import AuthenticationErrorException, CannotFindCredentialException
 
 RAPID_CLIENT_ID = "RAPID_CLIENT_ID"
-RAPID_CLIENT_SECRET = "RAPID_CLIENT_SECRET"
+RAPID_CLIENT_SECRET = "RAPID_CLIENT_SECRET"  # pragma: allowlist secret # nosec
 RAPID_URL = "RAPID_URL"
 
 

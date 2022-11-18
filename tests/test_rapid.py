@@ -65,7 +65,7 @@ class TestRapid:
         )
         job_id = 1234
 
-        with pytest.raises(JobFailedException) as e:
+        with pytest.raises(JobFailedException):
             rapid.wait_for_job_outcome(job_id, interval=0.01)
             expected_calls = [call(job_id), call(job_id)]
             assert rapid.fetch_job_progress.call_args_list == expected_calls
@@ -141,7 +141,6 @@ class TestRapid:
         domain = "test_domain"
         dataset = "test_dataset"
         sensitivity = "PUBLIC"
-        job_id = 1234
         df = DataFrame()
         mocked_response = {"data": "dummy"}
         requests_mock.post(
@@ -158,7 +157,6 @@ class TestRapid:
         domain = "test_domain"
         dataset = "test_dataset"
         sensitivity = "PUBLIC"
-        job_id = 1234
         df = DataFrame()
         mocked_response = {"data": "dummy"}
         requests_mock.post(

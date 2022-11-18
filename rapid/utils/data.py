@@ -5,9 +5,7 @@ from rapid import Rapid
 from rapid.exceptions import SchemaAlreadyExistsException
 
 
-def upload_and_create_dataframe(
-    rapid: Rapid, metadata: SchemaMetadata, df: DataFrame, update_on_error: bool = True
-):
+def upload_and_create_dataframe(rapid: Rapid, metadata: SchemaMetadata, df: DataFrame):
     schema = rapid.generate_schema(
         df, metadata.domain, metadata.dataset, metadata.sensitivity
     )

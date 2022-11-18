@@ -8,7 +8,7 @@ python:
 	pyenv local $(PYTHON_VERSION)
 
 precommit:
-	pre-commit
+	pre-commit install
 
 venv:
 	python3 -m venv .venv

@@ -1,0 +1,33 @@
+name: Test Python
+
+on:
+  push:
+    branches:
+      - "*"
+
+  workflow_dispatch:
+  
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Populate .env with additional vars
+        run: |
+          cp ./github/.github.env .env
+          echo AWS_ACCOUNT=${{ secrets.AWS_ACCOUNT }} > .env
+          echo AWS_REGION=${{ secrets.AWS_REGION }} > .env
+
+      - name: Setup python environment
+        run: |
+          make venv
+
+      - name: Test
+        run: |
+          source .venv/bin/activate && pytest
+
+      - name: Deploy to test PyPi
+        run: |
+          make deploy/test

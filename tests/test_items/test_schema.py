@@ -7,6 +7,7 @@ from rapid.exceptions import (
     SchemaAlreadyExistsException,
     SchemaCreateFailedException,
     SchemaInitialisationException,
+    ColumnNotDifferentException
 )
 
 from tests.conftest import RAPID_URL
@@ -27,6 +28,16 @@ DUMMY_COLUMNS = [
         allow_null=True,
         format=None,
     ),
+]
+
+DUMMY_COLUMNS_TWO = [
+    Column(
+        name="column_c",
+        partition_index=None,
+        data_type="Float64",
+        allow_null=True,
+        format=None
+    )
 ]
 
 
@@ -76,6 +87,20 @@ class TestSchema:
 
         with pytest.raises(SchemaInitialisationException):
             Schema(None, _input)
+
+    def test_reset_columns(self):
+        schema = Schema(None, DUMMY_COLUMNS)
+        schema.set_columns(DUMMY_COLUMNS_TWO)
+        assert schema.columns == DUMMY_COLUMNS_TWO
+
+    def test_compare_columns_passes(self):
+        schema = Schema(None, DUMMY_COLUMNS)
+        schema.compare_columns(DUMMY_COLUMNS_TWO)
+
+    def test_compare_columns_fails(self):
+        schema = Schema(None, DUMMY_COLUMNS)
+        with pytest.raises(ColumnNotDifferentException):
+            schema.compare_columns(DUMMY_COLUMNS)
 
     def test_create_success(self, requests_mock: Mocker, rapid: Rapid, schema: Schema):
         requests_mock.post(f"{RAPID_URL}/schema")

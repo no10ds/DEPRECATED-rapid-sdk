@@ -121,23 +121,13 @@ class Schema:
         }
 
     def compare_columns(self, columns_b: Union[List[Column], List[dict]]):
-        new_columns = self._format_columns(columns_b)
         diff = DeepDiff(
-            self.columns,
-            new_columns,
+            [x.to_dict() for x in self.columns],
+            [x.to_dict() for x in self._format_columns(columns_b)],
             ignore_order=True,
-            include_paths=[
-                "name",
-                "partition_index",
-                "data_type",
-                "allow_null",
-                "format",
-            ],
         )
         if not diff:
-            return
-
-        raise ColumnNotDifferentException("The two columns are not different")
+            raise ColumnNotDifferentException("The two columns are not different")
 
     def create(self, rapid: Rapid):
         schema = self.to_dict()

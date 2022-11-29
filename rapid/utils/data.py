@@ -2,7 +2,6 @@ from typing import Union, List
 from pandas import DataFrame
 from rapid.items.schema import Schema, SchemaMetadata, Column
 from rapid import Rapid
-from rapid.exceptions import SchemaAlreadyExistsException, ColumnNotDifferentException
 
 
 def upload_and_create_dataframe(rapid: Rapid, metadata: SchemaMetadata, df: DataFrame):
@@ -11,8 +10,8 @@ def upload_and_create_dataframe(rapid: Rapid, metadata: SchemaMetadata, df: Data
     )
     try:
         Schema(metadata, schema["columns"]).create(rapid)
-    except SchemaAlreadyExistsException:
-        pass
+    except Exception as e:
+        raise(e)
 
     rapid.upload_dataframe(metadata.domain, metadata.dataset, df)
 
@@ -29,5 +28,5 @@ def update_schema_dataframe(
         schema.compare_columns(columns_b=new_columns)
         schema.set_columns(new_columns)
         schema.update(rapid)
-    except ColumnNotDifferentException:
-        pass
+    except Exception as e:
+        raise(e)

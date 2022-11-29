@@ -1,5 +1,6 @@
 from typing import Union, List
 from pandas import DataFrame
+from rapid.exceptions import ColumnNotDifferentException
 from rapid.items.schema import Schema, SchemaMetadata, Column
 from rapid import Rapid
 
@@ -25,8 +26,10 @@ def update_schema_dataframe(
     info = rapid.generate_info(df, metadata.domain, metadata.dataset)
     try:
         schema = Schema(metadata, info["columns"])
-        schema.compare_columns(columns_b=new_columns)
+        if schema.are_columns_the_same(columns_b=new_columns):
+            raise ColumnNotDifferentException
+
         schema.set_columns(new_columns)
         schema.update(rapid)
     except Exception as e:
-        raise(e)
+        raise e

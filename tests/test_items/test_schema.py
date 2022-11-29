@@ -93,14 +93,15 @@ class TestSchema:
         schema.set_columns(DUMMY_COLUMNS_TWO)
         assert schema.columns == DUMMY_COLUMNS_TWO
 
-    def test_compare_columns_passes(self):
+    def test_are_columns_the_same_passes(self):
         schema = Schema(None, DUMMY_COLUMNS)
-        schema.compare_columns(DUMMY_COLUMNS_TWO)
+        same = schema.are_columns_the_same(DUMMY_COLUMNS)
+        assert same is True
 
-    def test_compare_columns_fails(self):
+    def test_are_columns_the_same_fails(self):
         schema = Schema(None, DUMMY_COLUMNS)
-        with pytest.raises(ColumnNotDifferentException):
-            schema.compare_columns(DUMMY_COLUMNS)
+        same = schema.are_columns_the_same(DUMMY_COLUMNS_TWO)
+        assert same is False
 
     def test_create_success(self, requests_mock: Mocker, rapid: Rapid, schema: Schema):
         requests_mock.post(f"{RAPID_URL}/schema")

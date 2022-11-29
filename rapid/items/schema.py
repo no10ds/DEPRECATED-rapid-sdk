@@ -120,14 +120,15 @@ class Schema:
             "columns": [column.to_dict() for column in self.columns],
         }
 
-    def compare_columns(self, columns_b: Union[List[Column], List[dict]]):
+    def are_columns_the_same(self, columns_b: Union[List[Column], List[dict]]):
         diff = DeepDiff(
             [x.to_dict() for x in self.columns],
             [x.to_dict() for x in self._format_columns(columns_b)],
             ignore_order=True,
         )
         if not diff:
-            raise ColumnNotDifferentException("The two columns are not different")
+            return True
+        return False
 
     def create(self, rapid: Rapid):
         schema = self.to_dict()

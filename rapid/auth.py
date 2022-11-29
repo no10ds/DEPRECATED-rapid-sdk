@@ -4,6 +4,7 @@ import os
 import requests
 from requests.auth import HTTPBasicAuth
 
+from rapid.utils.constants import TIMEOUT_PERIOD
 from rapid.exceptions import AuthenticationErrorException, CannotFindCredentialException
 
 RAPID_CLIENT_ID = "RAPID_CLIENT_ID"
@@ -49,6 +50,7 @@ class RapidAuth:
             auth=self.credentials_secret(),
             headers=self.headers,
             json=self.payload,
+            timeout=TIMEOUT_PERIOD,
         )
         return response
 

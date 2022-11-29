@@ -2,13 +2,16 @@ from dataclasses import dataclass
 from enum import Enum
 import json
 from typing import Dict, List, Optional, Union
+from deepdiff import DeepDiff
 import requests
 
 from rapid import Rapid
+from rapid.utils.constants import TIMEOUT_PERIOD
 from rapid.exceptions import (
     SchemaAlreadyExistsException,
     SchemaCreateFailedException,
     SchemaInitialisationException,
+    ColumnNotDifferentException,
 )
 
 
@@ -108,11 +111,33 @@ class Schema:
 
         raise SchemaInitialisationException("The columns are not of the expected type")
 
+    def set_columns(self, columns: List[Column]):
+        self.columns = columns
+
     def to_dict(self):
         return {
             "metadata": self.metadata.to_dict(),
             "columns": [column.to_dict() for column in self.columns],
         }
+
+    def compare_columns(self, columns_b: Union[List[Column], List[dict]]):
+        new_columns = self._format_columns(columns_b)
+        diff = DeepDiff(
+            self.columns,
+            new_columns,
+            ignore_order=True,
+            include_paths=[
+                "name",
+                "partition_index",
+                "data_type",
+                "allow_null",
+                "format",
+            ],
+        )
+        if not diff:
+            return
+
+        raise ColumnNotDifferentException("The two columns are not different")
 
     def create(self, rapid: Rapid):
         schema = self.to_dict()
@@ -120,6 +145,7 @@ class Schema:
             f"{rapid.auth.url}/schema",
             data=json.dumps(schema),
             headers=rapid.generate_headers(),
+            timeout=TIMEOUT_PERIOD,
         )
         if response.status_code == 200:
             pass
@@ -135,4 +161,5 @@ class Schema:
             f"{rapid.auth.url}/schema",
             data=json.dumps(schema),
             headers=rapid.generate_headers(),
+            timeout=TIMEOUT_PERIOD,
         )

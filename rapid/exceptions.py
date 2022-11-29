@@ -20,6 +20,12 @@ class DataFrameUploadFailedException(Exception):
         self.data = data
 
 
+class DatasetInfoFailedException(Exception):
+    def __init__(self, message, data):
+        self.message = message
+        self.data = data
+
+
 class SchemaGenerationFailedException(Exception):
     def __init__(self, message, data):
         self.message = message
@@ -41,4 +47,8 @@ class AuthenticationErrorException(Exception):
 
 
 class SchemaInitialisationException(Exception):
+    pass
+
+
+class ColumnNotDifferentException(Exception):
     pass

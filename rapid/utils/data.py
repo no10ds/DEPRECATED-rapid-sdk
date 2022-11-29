@@ -12,7 +12,7 @@ def upload_and_create_dataframe(rapid: Rapid, metadata: SchemaMetadata, df: Data
     try:
         Schema(metadata, schema["columns"]).create(rapid)
     except Exception as e:
-        raise(e)
+        raise (e)
 
     rapid.upload_dataframe(metadata.domain, metadata.dataset, df)
 

@@ -126,33 +126,30 @@ class TestUtils:
             Column(
                 name="column_a",
                 partition_index=None,
-                data_type="float64", # NOTE: Change in data type for column
+                data_type="float64",  # NOTE: Change in data type for column
                 allow_null=True,
-                format=None
+                format=None,
             ),
             Column(
                 name="column_b",
                 partition_index=None,
                 data_type="object",
                 allow_null=True,
-                format=None
+                format=None,
             ),
             Column(
                 name="column_c",
                 partition_index=None,
                 data_type="object",
                 allow_null=True,
-                format=None
-            )
+                format=None,
+            ),
         ]
         requests_mock.post(
             f"{RAPID_URL}/datasets/{metadata.domain}/{metadata.dataset}/info",
-            json=mock_response
+            json=mock_response,
         )
-        requests_mock.put(
-            f"{RAPID_URL}/schema",
-            json={"dummy": "data"}
-        )
+        requests_mock.put(f"{RAPID_URL}/schema", json={"dummy": "data"})
         update_schema_dataframe(rapid, metadata, df, new_columns)
 
     def test_update_schema_dataframe_fail(self, requests_mock: Mocker, rapid: Rapid):
@@ -205,11 +202,8 @@ class TestUtils:
         }
         requests_mock.post(
             f"{RAPID_URL}/datasets/{metadata.domain}/{metadata.dataset}/info",
-            json=mock_response
+            json=mock_response,
         )
-        requests_mock.put(
-            f"{RAPID_URL}/schema",
-            json={"dummy": "data"}
-        )
+        requests_mock.put(f"{RAPID_URL}/schema", json={"dummy": "data"})
         with pytest.raises(ColumnNotDifferentException):
             update_schema_dataframe(rapid, metadata, df, mock_response["columns"])

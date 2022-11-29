@@ -7,7 +7,7 @@ from rapid.exceptions import (
     SchemaAlreadyExistsException,
     SchemaCreateFailedException,
     SchemaInitialisationException,
-    ColumnNotDifferentException
+    ColumnNotDifferentException,
 )
 
 from tests.conftest import RAPID_URL
@@ -36,7 +36,7 @@ DUMMY_COLUMNS_TWO = [
         partition_index=None,
         data_type="Float64",
         allow_null=True,
-        format=None
+        format=None,
     )
 ]
 

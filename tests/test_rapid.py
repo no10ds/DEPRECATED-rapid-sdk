@@ -9,7 +9,7 @@ from rapid.exceptions import (
     JobFailedException,
     SchemaGenerationFailedException,
     UnableToFetchJobStatusException,
-    DatasetInfoFailedException
+    DatasetInfoFailedException,
 )
 from .conftest import RAPID_URL, RAPID_TOKEN
 
@@ -137,7 +137,7 @@ class TestRapid:
         requests_mock.post(
             f"{RAPID_URL}/datasets/{domain}/{dataset}/info",
             json=mocked_response,
-            status_code=200
+            status_code=200,
         )
 
         res = rapid.generate_info(df, domain, dataset)
@@ -152,7 +152,7 @@ class TestRapid:
         requests_mock.post(
             f"{RAPID_URL}/datasets/{domain}/{dataset}/info",
             json=mocked_response,
-            status_code=422
+            status_code=422,
         )
 
         with pytest.raises(DatasetInfoFailedException):

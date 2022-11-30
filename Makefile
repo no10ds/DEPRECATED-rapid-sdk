@@ -22,7 +22,12 @@ setup: python precommit venv
 
 # Deploy the package
 
-deploy:
+deploy/test:
 	rm -rf ./dist
 	python3 setup.py sdist
 	twine upload --repository testpypi dist/*
+
+deploy/release:
+	rm -rf ./dist
+	python3 setup.py sdist
+	twine upload dist/*

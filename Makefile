@@ -28,4 +28,6 @@ deploy/test:
 	twine upload --repository testpypi dist/*
 
 deploy/release:
+	rm -rf ./dist
+	python3 setup.py sdist
 	twine upload dist/*

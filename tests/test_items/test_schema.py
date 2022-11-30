@@ -7,7 +7,6 @@ from rapid.exceptions import (
     SchemaAlreadyExistsException,
     SchemaCreateFailedException,
     SchemaInitialisationException,
-    ColumnNotDifferentException,
 )
 
 from tests.conftest import RAPID_URL

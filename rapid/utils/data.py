@@ -1,20 +1,29 @@
 from typing import Union, List
 from pandas import DataFrame
-from rapid.exceptions import ColumnNotDifferentException
+from rapid.exceptions import (
+    ColumnNotDifferentException,
+    DataFrameUploadValidationException,
+)
 from rapid.items.schema import Schema, SchemaMetadata, Column
 from rapid import Rapid
 
 
-def upload_and_create_dataframe(rapid: Rapid, metadata: SchemaMetadata, df: DataFrame):
+def upload_and_create_dataframe(
+    rapid: Rapid, metadata: SchemaMetadata, df: DataFrame, upgrade_schema_on_fail=False
+):
     schema = rapid.generate_schema(
         df, metadata.domain, metadata.dataset, metadata.sensitivity
     )
     try:
         Schema(metadata, schema["columns"]).create(rapid)
+        rapid.upload_dataframe(metadata.domain, metadata.dataset, df)
+    except DataFrameUploadValidationException as e:
+        if upgrade_schema_on_fail:
+            update_schema_dataframe(rapid, metadata, df, schema["columns"])
+        else:
+            raise e
     except Exception as e:
-        raise (e)
-
-    rapid.upload_dataframe(metadata.domain, metadata.dataset, df)
+        raise e
 
 
 def update_schema_dataframe(

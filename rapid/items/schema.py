@@ -11,7 +11,6 @@ from rapid.exceptions import (
     SchemaAlreadyExistsException,
     SchemaCreateFailedException,
     SchemaInitialisationException,
-    ColumnNotDifferentException,
 )
 
 

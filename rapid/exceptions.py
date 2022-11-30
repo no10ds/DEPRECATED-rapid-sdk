@@ -20,6 +20,10 @@ class DataFrameUploadFailedException(Exception):
         self.data = data
 
 
+class DataFrameUploadValidationException(Exception):
+    pass
+
+
 class DatasetInfoFailedException(Exception):
     def __init__(self, message, data):
         self.message = message

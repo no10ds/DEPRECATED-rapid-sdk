@@ -9,6 +9,7 @@ from rapid.auth import RapidAuth
 from rapid.utils.constants import TIMEOUT_PERIOD
 from rapid.exceptions import (
     DataFrameUploadFailedException,
+    DataFrameUploadValidationException,
     JobFailedException,
     SchemaGenerationFailedException,
     UnableToFetchJobStatusException,
@@ -66,6 +67,11 @@ class Rapid:
                 self.wait_for_job_outcome(data["details"]["job_id"])
                 return "Success"
             return data["details"]["job_id"]
+        if response.status_code == 422:
+            raise DataFrameUploadValidationException(
+                "Could not upload dataframe due to an incorrect schema definition"
+            )
+
         raise DataFrameUploadFailedException(
             "Encountered an unexpected error, could not upload dataframe",
             data["details"],

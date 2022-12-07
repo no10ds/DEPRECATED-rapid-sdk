@@ -6,11 +6,14 @@ import requests
 from pandas import DataFrame
 
 from rapid.auth import RapidAuth
+from rapid.utils.constants import TIMEOUT_PERIOD
 from rapid.exceptions import (
     DataFrameUploadFailedException,
+    DataFrameUploadValidationException,
     JobFailedException,
     SchemaGenerationFailedException,
     UnableToFetchJobStatusException,
+    DatasetInfoFailedException,
 )
 
 
@@ -23,15 +26,16 @@ class Rapid:
 
     def list_datasets(self):
         response = requests.post(
-            f"{self.auth.url}/datasets", headers=self.generate_headers()
+            f"{self.auth.url}/datasets",
+            headers=self.generate_headers(),
+            timeout=TIMEOUT_PERIOD,
         )
         return json.loads(response.content.decode("utf-8"))
 
     def fetch_job_progress(self, _id: str):
         url = f"{self.auth.url}/jobs/{_id}"
         response = requests.get(
-            url,
-            headers=self.generate_headers(),
+            url, headers=self.generate_headers(), timeout=TIMEOUT_PERIOD
         )
         data = json.loads(response.content.decode("utf-8"))
         if response.status_code == 200:
@@ -54,6 +58,7 @@ class Rapid:
             url,
             headers=self.generate_headers(),
             files=self.convert_dataframe_for_file_upload(df),
+            timeout=TIMEOUT_PERIOD,
         )
         data = json.loads(response.content.decode("utf-8"))
 
@@ -62,9 +67,30 @@ class Rapid:
                 self.wait_for_job_outcome(data["details"]["job_id"])
                 return "Success"
             return data["details"]["job_id"]
+        if response.status_code == 422:
+            raise DataFrameUploadValidationException(
+                "Could not upload dataframe due to an incorrect schema definition"
+            )
+
         raise DataFrameUploadFailedException(
             "Encountered an unexpected error, could not upload dataframe",
             data["details"],
+        )
+
+    def generate_info(self, df: DataFrame, domain: str, dataset: str):
+        url = f"{self.auth.url}/datasets/{domain}/{dataset}/info"
+        response = requests.post(
+            url,
+            headers=self.generate_headers(),
+            files=self.convert_dataframe_for_file_upload(df),
+            timeout=TIMEOUT_PERIOD,
+        )
+        data = json.loads(response.content.decode("utf-8"))
+        if response.status_code == 200:
+            return data
+
+        raise DatasetInfoFailedException(
+            "Failed to gather the dataset info", data["details"]
         )
 
     def convert_dataframe_for_file_upload(self, df: DataFrame):
@@ -84,6 +110,7 @@ class Rapid:
             url,
             headers=self.generate_headers(),
             files=self.convert_dataframe_for_file_upload(df),
+            timeout=TIMEOUT_PERIOD,
         )
         data = json.loads(response.content.decode("utf-8"))
         if response.status_code == 200:

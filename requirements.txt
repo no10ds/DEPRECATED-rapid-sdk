@@ -1,3 +1,4 @@
+deepdiff
 mock
 pandas
 pytest

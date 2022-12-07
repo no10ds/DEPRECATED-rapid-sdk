@@ -9,6 +9,7 @@ from rapid.exceptions import (
     JobFailedException,
     SchemaGenerationFailedException,
     UnableToFetchJobStatusException,
+    DatasetInfoFailedException,
 )
 from .conftest import RAPID_URL, RAPID_TOKEN
 
@@ -126,6 +127,36 @@ class TestRapid:
         with pytest.raises(DataFrameUploadFailedException):
             rapid.upload_dataframe(domain, dataset, df, wait_to_complete=False)
             rapid.convert_dataframe_for_file_upload.assert_called_once_with(df)
+
+    @pytest.mark.usefixtures("requests_mock", "rapid")
+    def test_generate_info_success(self, requests_mock: Mocker, rapid: Rapid):
+        domain = "test_domain"
+        dataset = "test_dataset"
+        df = DataFrame()
+        mocked_response = {"data": "dummy"}
+        requests_mock.post(
+            f"{RAPID_URL}/datasets/{domain}/{dataset}/info",
+            json=mocked_response,
+            status_code=200,
+        )
+
+        res = rapid.generate_info(df, domain, dataset)
+        assert res == mocked_response
+
+    @pytest.mark.usefixtures("requests_mock", "rapid")
+    def test_generate_info_failure(self, requests_mock: Mocker, rapid: Rapid):
+        domain = "test_domain"
+        dataset = "test_dataset"
+        df = DataFrame()
+        mocked_response = {"details": "dummy"}
+        requests_mock.post(
+            f"{RAPID_URL}/datasets/{domain}/{dataset}/info",
+            json=mocked_response,
+            status_code=422,
+        )
+
+        with pytest.raises(DatasetInfoFailedException):
+            rapid.generate_info(df, domain, dataset)
 
     @pytest.mark.usefixtures("rapid")
     def test_convert_dataframe_for_file_upload(self, rapid: Rapid):

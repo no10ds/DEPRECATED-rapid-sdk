@@ -2,9 +2,11 @@ from dataclasses import dataclass
 from enum import Enum
 import json
 from typing import Dict, List, Optional, Union
+from deepdiff import DeepDiff
 import requests
 
 from rapid import Rapid
+from rapid.utils.constants import TIMEOUT_PERIOD
 from rapid.exceptions import (
     SchemaAlreadyExistsException,
     SchemaCreateFailedException,
@@ -108,11 +110,24 @@ class Schema:
 
         raise SchemaInitialisationException("The columns are not of the expected type")
 
+    def set_columns(self, columns: List[Column]):
+        self.columns = columns
+
     def to_dict(self):
         return {
             "metadata": self.metadata.to_dict(),
             "columns": [column.to_dict() for column in self.columns],
         }
+
+    def are_columns_the_same(self, columns_b: Union[List[Column], List[dict]]):
+        diff = DeepDiff(
+            [x.to_dict() for x in self.columns],
+            [x.to_dict() for x in self._format_columns(columns_b)],
+            ignore_order=True,
+        )
+        if not diff:
+            return True
+        return False
 
     def create(self, rapid: Rapid):
         schema = self.to_dict()
@@ -120,6 +135,7 @@ class Schema:
             f"{rapid.auth.url}/schema",
             data=json.dumps(schema),
             headers=rapid.generate_headers(),
+            timeout=TIMEOUT_PERIOD,
         )
         if response.status_code == 200:
             pass
@@ -135,4 +151,5 @@ class Schema:
             f"{rapid.auth.url}/schema",
             data=json.dumps(schema),
             headers=rapid.generate_headers(),
+            timeout=TIMEOUT_PERIOD,
         )

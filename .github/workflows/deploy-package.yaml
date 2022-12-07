@@ -1,0 +1,32 @@
+name: Deploy python pacakage to PyPi
+
+on:
+  workflow_run:
+    workflows: ["Test python"]
+    branches: [ main ]
+    types:
+      - completed
+  push:
+    tags:
+      - beta-*
+    
+jobs:
+  release:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Populate .env with additional vars
+        run: |
+          cp ./github/.github.env .env
+          echo AWS_ACCOUNT=${{ secrets.AWS_ACCOUNT }} > .env
+          echo AWS_REGION=${{ secrets.AWS_REGION }} > .env
+
+      - name: Install python reqs
+        run: |
+          python3 -m pip install twine
+
+      - name: Release
+        run: |
+          make deploy/release

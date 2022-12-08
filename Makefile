@@ -31,3 +31,10 @@ deploy/release:
 	rm -rf ./dist
 	python3 setup.py sdist
 	twine upload dist/*
+
+documentation/build:
+	sphinx-apidoc -o ./docs/source ./rapid
+	cd ./docs && $(MAKE) html
+
+documentation/serve:
+	python -m http.server --directory ./docs/build/html

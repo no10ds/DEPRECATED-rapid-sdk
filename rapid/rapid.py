@@ -25,12 +25,10 @@ class Rapid:
         with the API.
 
         Attributes:
-            auth: An instance of the rAPId auth class, which is used for authentication and
-            authorization with the API.
+            auth: An instance of the rAPId auth class, which is used for authentication and authorization with the API.
 
         Methods:
-            __init__: Initializes an instance of the rAPId class, with an instance
-            of the  rAPId auth class.
+            __init__: Initializes an instance of the rAPId class, with an instance of the  rAPId auth class.
         """
         self.auth = auth if auth else RapidAuth()
 
@@ -114,9 +112,8 @@ class Rapid:
             accepted, otherwise raises an appropriate exception.
 
         Raises:
-            DataFrameUploadValidationException: If the DataFrame's schema is incorrect.
-            DataFrameUploadFailedException: If an unexpected error occurs while
-            uploading the DataFrame.
+            :class:`rapid.exceptions.DataFrameUploadValidationException`: If the DataFrame's schema is incorrect.
+            :class:`rapid.exceptions.DataFrameUploadFailedException`: If an unexpected error occurs while uploading the DataFrame.
         """
         url = f"{self.auth.url}/datasets/{domain}/{dataset}"
         response = requests.post(
@@ -155,8 +152,7 @@ class Rapid:
             A dictionary containing the metadata information for the DataFrame and dataset.
 
         Raises:
-            DatasetInfoFailedException: If an error occurs while generating
-            the metadata information.
+            :class:`rapid.exceptions.DatasetInfoFailedException`: If an error occurs while generating the metadata information.
         """
         url = f"{self.auth.url}/datasets/{domain}/{dataset}/info"
         response = requests.post(
@@ -181,8 +177,7 @@ class Rapid:
             df (DataFrame): The pandas DataFrame to convert.
 
         Returns:
-            A dictionary containing the converted DataFrame in a format
-            suitable for file uploads to the API.
+            A dictionary containing the converted DataFrame in a format suitable for file uploads to the API.
         """
         return {
             "file": (
@@ -194,6 +189,7 @@ class Rapid:
     def generate_schema(
         self, df: DataFrame, domain: str, dataset: str, sensitivity: str
     ):
+
         """
         Generates a schema for a pandas DataFrame and a specified dataset in the API.
 
@@ -207,7 +203,7 @@ class Rapid:
             A dictionary containing the generated schema for the DataFrame and dataset.
 
         Raises:
-            SchemaGenerationFailedException: If an error occurs while generating the schema.
+            :class:`rapid.exceptions.SchemaGenerationFailedException`: If an error occurs while generating the schema.
         """
         url = f"{self.auth.url}/schema/{sensitivity}/{domain}/{dataset}/generate"
 

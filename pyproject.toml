@@ -31,4 +31,5 @@ disable = [
     "reimported",
     "too-many-ancestors",
     "unexpected-special-method-signature",
+    "line-too-long"
 ]

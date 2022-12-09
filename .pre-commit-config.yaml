@@ -28,3 +28,4 @@ repos:
     rev: v2.15.5
     hooks:
     -   id: pylint
+        exclude: docs/

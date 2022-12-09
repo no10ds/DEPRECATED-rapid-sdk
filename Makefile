@@ -12,8 +12,8 @@ precommit:
 
 venv:
 	python3 -m venv .venv
-	source .venv/bin/activate
-	reqs
+	. .venv/bin/activate
+	make reqs
 
 reqs:
 	pip install -r requirements.txt
@@ -31,3 +31,10 @@ deploy/release:
 	rm -rf ./dist
 	python3 setup.py sdist
 	twine upload dist/*
+
+documentation/build:
+	sphinx-apidoc -o ./docs/source ./rapid
+	cd ./docs && $(MAKE) html
+
+documentation/serve:
+	python -m http.server --directory ./docs/build/html

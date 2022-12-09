@@ -12,8 +12,8 @@ precommit:
 
 venv:
 	python3 -m venv .venv
-	source .venv/bin/activate
-	reqs
+	. .venv/bin/activate
+	make reqs
 
 reqs:
 	pip install -r requirements.txt

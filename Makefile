@@ -33,7 +33,6 @@ deploy/release:
 	twine upload dist/*
 
 documentation/build:
-	sphinx-apidoc -o ./docs/source ./rapid
 	cd ./docs && $(MAKE) html
 
 documentation/serve:

@@ -2,7 +2,7 @@
 rAPId-sdk
 =====================================
 
-The rAPId-sdk is a lightweight Python wrapper for the 10 Downing Streets `rAPId api project <https://github.com/no10ds/rapid-api>`_.
+The rAPId-sdk is a lightweight Python wrapper for 10 Downing Street's `rAPId api project <https://github.com/no10ds/rapid-api>`_.
 rAPId aims to create a consistent, secure, interoperable data storage and sharing interfaces (APIs).
 
 The sdk is a standalone Python library that can provide easy programmatic access to the core rAPId functionality. It can handle
@@ -38,6 +38,82 @@ values directly to the class as follows.::
       client_secret="RAPID_CLIENT_SECRET",
       url="RAPID_URL"
    )
+
+Useful Patterns
+---------------
+With the sdk we ship useful functions that handle common programmatic functionality for rAPId.
+
+Below is an simple example for uploading a Pandas DataFrame to the API.::
+
+   import pandas as pd
+   from rapid import Rapid
+   from rapid.patterns import data
+   from rapid.items.schema import SchemaMetadata, SensitivityLevel, Owner
+   from rapid.exceptions import DataFrameUploadValidationException
+
+   rapid = Rapid()
+
+   raw_data = [
+      {"a": 1, "b": 2, "c": 3},
+      {"a": 10, "b": 20, "c": 30}
+   ]
+   df = pd.DataFrame(raw_data)
+
+   metadata = SchemaMetadata(
+    domain='mydomain',
+    dataset='mydataset',
+    owners=[Owner(name="myname", email="myemail@email.com")],
+    _sensitivity=SensitivityLevel.PUBLIC.value
+   )
+
+   try:
+      data.upload_and_create_dataframe(
+         rapid=rapid,
+         df=df,
+         metadata=metadata,
+         upgrade_schema_on_fail=False
+      )
+   except DataFrameUploadValidationException:
+      print('Incorrect DataFrame schema')
+
+Now going forward say for instance we now expect that for column c we can expect some values
+to be floating points, we want to update the schema.::
+
+   import pandas as pd
+   from rapid import Rapid
+   from rapid.patterns import data
+   from rapid.items.schema import SchemaMetadata, SensitivityLevel, Owner, Column
+   from rapid.exceptions import ColumnNotDifferentException
+
+   rapid = Rapid()
+
+   raw_data = [
+      {"a": 1, "b": 2, "c": 3},
+      {"a": 10, "b": 20, "c": 30}
+   ]
+   df = pd.DataFrame(raw_data)
+
+   metadata = SchemaMetadata(
+    domain='mydomain',
+    dataset='mydataset',
+    owners=[Owner(name="myname", email="myemail@email.com")],
+    _sensitivity=SensitivityLevel.PUBLIC.value
+   )
+
+   try:
+      data.update_schema_dataframe(
+         rapid=rapid,
+         df=df,
+         metadata=metadata,
+         new_columns=[
+            Column(
+               name="c",
+               data_type="Float64"
+            )
+         ]
+      )
+   except ColumnNotDifferentException:
+      print('Columns not different.')
 
 API Documentation
 =================

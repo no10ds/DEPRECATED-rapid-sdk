@@ -13,6 +13,7 @@ jobs:
 
       - name: Populate .env with additional vars
         run: |
+          cp ./.github/.github.env .env
           echo AWS_ACCOUNT=${{ secrets.AWS_ACCOUNT }} >> .env
           echo AWS_REGION=${{ secrets.AWS_REGION }} >> .env
           echo TWINE_USERNAME=${{ secrets.TWINE_USERNAME }} >> .env

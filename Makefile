@@ -20,6 +20,9 @@ reqs:
 
 setup: python precommit venv
 
+test:
+	pytest -v
+
 # Deploy the package
 release:
 	git checkout ${commit}

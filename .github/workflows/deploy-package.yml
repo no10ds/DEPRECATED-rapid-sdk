@@ -14,11 +14,11 @@ jobs:
       - name: Populate .env with additional vars
         run: |
           cp ./.github/.github.env .env
-          echo AWS_ACCOUNT=${{ secrets.AWS_ACCOUNT }} >> .env
-          echo AWS_REGION=${{ secrets.AWS_REGION }} >> .env
-          echo TWINE_USERNAME=${{ secrets.TWINE_USERNAME }} >> .env
-          echo TWINE_PASSWORD=${{ secrets.TWINE_PASSWORD }} >> .env
-          echo TWINE_NON_INTERACTIVE=${{ secrets.TWINE_NON_INTERACTIVE }} >> .env
+          echo "AWS_ACCOUNT=${{ secrets.AWS_ACCOUNT }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "TWINE_USERNAME=${{ secrets.TWINE_USERNAME }}" >> .env
+          echo "TWINE_PASSWORD=${{ secrets.TWINE_PASSWORD }}" >> .env
+          echo "TWINE_NON_INTERACTIVE=${{ secrets.TWINE_NON_INTERACTIVE }}" >> .env
 
       - name: Install Python
         uses: actions/setup-python@v4

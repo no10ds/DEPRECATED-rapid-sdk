@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Populate .env with additional vars
         run: |
@@ -31,10 +31,11 @@ jobs:
       - name: Setup python environment
         run: |
           make venv
+          source .venv/bin/activate
 
       - name: Test
         run: |
-          source .venv/bin/activate && pytest
+          make test
 
       - name: Deploy to test PyPi
         run: |

@@ -29,11 +29,11 @@ def upload_and_create_dataframe(
         df, metadata.domain, metadata.dataset, metadata.sensitivity
     )
     try:
-        Schema(metadata, schema["columns"]).create(rapid)
+        rapid.create_schema(schema)
         rapid.upload_dataframe(metadata.domain, metadata.dataset, df)
     except DataFrameUploadValidationException as exception:
         if upgrade_schema_on_fail:
-            update_schema_dataframe(rapid, metadata, df, schema["columns"])
+            update_schema_dataframe(rapid, metadata, df, schema.columns)
         else:
             raise exception
     except Exception as exception:
@@ -61,11 +61,11 @@ def update_schema_dataframe(
     """
     info = rapid.generate_info(df, metadata.domain, metadata.dataset)
     try:
-        schema = Schema(metadata, info["columns"])
-        if schema.are_columns_the_same(columns_b=new_columns):
+        schema = Schema(metadata=metadata, columns=info["columns"])
+        if schema.are_columns_the_same(new_columns=new_columns):
             raise ColumnNotDifferentException
 
-        schema.set_columns(new_columns)
-        schema.update(rapid)
+        schema.columns = new_columns
+        rapid.update_schema(schema)
     except Exception as e:
         raise e

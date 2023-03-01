@@ -173,7 +173,33 @@ class TestRapid:
         dataset = "test_dataset"
         sensitivity = "PUBLIC"
         df = DataFrame()
-        mocked_response = {"data": "dummy"}
+        mocked_response = {
+            "metadata": {
+                "domain": "test",
+                "dataset": "rapid_sdk",
+                "sensitivity": "PUBLIC",
+                "owners": [{"name": "Test", "email": "test@email.com"}],
+                "version": None,
+                "key_value_tags": None,
+                "key_only_tags": None,
+            },
+            "columns": [
+                {
+                    "name": "column_a",
+                    "data_type": "object",
+                    "partition_index": None,
+                    "allow_null": True,
+                    "format": None,
+                },
+                {
+                    "name": "column_b",
+                    "data_type": "object",
+                    "partition_index": None,
+                    "allow_null": True,
+                    "format": None,
+                },
+            ],
+        }
         requests_mock.post(
             f"{RAPID_URL}/schema/{sensitivity}/{domain}/{dataset}/generate",
             json=mocked_response,
@@ -181,7 +207,10 @@ class TestRapid:
         )
 
         res = rapid.generate_schema(df, domain, dataset, sensitivity)
-        assert res == mocked_response
+        assert res.metadata.domain == "test"
+        assert res.metadata.dataset == "rapid_sdk"
+        assert res.columns[0].name == "column_a"
+        assert res.columns[1].name == "column_b"
 
     @pytest.mark.usefixtures("requests_mock", "rapid")
     def test_generate_schema_failure(self, requests_mock: Mocker, rapid: Rapid):

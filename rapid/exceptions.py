@@ -42,6 +42,12 @@ class SchemaCreateFailedException(Exception):
         self.data = data
 
 
+class SchemaUpdateFailedException(Exception):
+    def __init__(self, message, data):
+        self.message = message
+        self.data = data
+
+
 class CannotFindCredentialException(Exception):
     pass
 

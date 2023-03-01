@@ -7,12 +7,16 @@ import requests
 from pandas import DataFrame
 
 from rapid.auth import RapidAuth
+from rapid.items.schema import Schema
 from rapid.utils.constants import TIMEOUT_PERIOD
 from rapid.exceptions import (
     DataFrameUploadFailedException,
     DataFrameUploadValidationException,
     JobFailedException,
     SchemaGenerationFailedException,
+    SchemaCreateFailedException,
+    SchemaUpdateFailedException,
+    SchemaAlreadyExistsException,
     UnableToFetchJobStatusException,
     DatasetInfoFailedException,
 )
@@ -187,7 +191,7 @@ class Rapid:
 
     def generate_schema(
         self, df: DataFrame, domain: str, dataset: str, sensitivity: str
-    ):
+    ) -> Schema:
 
         """
         Generates a schema for a pandas DataFrame and a specified dataset in the API.
@@ -202,7 +206,7 @@ class Rapid:
             :class:`rapid.exceptions.SchemaGenerationFailedException`: If an error occurs while generating the schema.
 
         Returns:
-            A dictionary containing the generated schema for the DataFrame and dataset.
+            :class:`rapid.items.schema.Schema`: A Schema class type from the generated schema for the DataFrame and dataset.
         """
         url = f"{self.auth.url}/schema/{sensitivity}/{domain}/{dataset}/generate"
 
@@ -214,5 +218,54 @@ class Rapid:
         )
         data = json.loads(response.content.decode("utf-8"))
         if response.status_code == 200:
+            return Schema(**data)
+        raise SchemaGenerationFailedException("Could not generate schema", data)
+
+    def create_schema(self, schema: Schema):
+        """
+        Creates a new schema on the API.
+
+        Args:
+            schema (:class:`rapid.items.schema.Schema`): The schema model for which you want to create for.
+
+        Raises:
+            :class:`rapid.exceptions.SchemaCreateFailedException`: If an error occurs while trying to update the schema.
+        """
+        schema_dict = schema.dict()
+        url = f"{self.auth.url}/schema"
+        response = requests.post(
+            url,
+            headers=self.generate_headers(),
+            data=json.dumps(schema_dict),
+            timeout=TIMEOUT_PERIOD,
+        )
+        if response.status_code == 200:
+            pass
+        elif response.status_code == 409:
+            raise SchemaAlreadyExistsException("The schema already exists")
+        else:
+            data = json.loads(response.content.decode("utf-8"))
+            raise SchemaCreateFailedException("Could not create schema", data)
+
+    def update_schema(self, schema: Schema):
+        """
+        Uploads a new updated schema to the API.
+
+        Args:
+            schema (:class:`rapid.items.schema.Schema`): The new schema model that will be used for the update.
+
+        Raises:
+            :class:`rapid.exceptions.SchemaUpdateFailedException`: If an error occurs while trying to update the schema.
+        """
+        schema_dict = schema.dict()
+        url = f"{self.auth.url}/schema"
+        response = requests.put(
+            url,
+            headers=self.generate_headers(),
+            data=json.dumps(schema_dict),
+            timeout=TIMEOUT_PERIOD,
+        )
+        data = json.loads(response.content.decode("utf-8"))
+        if response.status_code == 200:
             return data
-        raise SchemaGenerationFailedException("Could not create schema", data)
+        raise SchemaUpdateFailedException("Could not update schema", data)

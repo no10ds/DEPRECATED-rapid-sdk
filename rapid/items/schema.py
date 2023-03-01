@@ -1,17 +1,6 @@
-from dataclasses import dataclass
 from enum import Enum
-import json
 from typing import Dict, List, Optional, Union
-from deepdiff import DeepDiff
-import requests
-
-from rapid import Rapid
-from rapid.utils.constants import TIMEOUT_PERIOD
-from rapid.exceptions import (
-    SchemaAlreadyExistsException,
-    SchemaCreateFailedException,
-    SchemaInitialisationException,
-)
+from pydantic.main import BaseModel
 
 
 class SensitivityLevel(Enum):
@@ -25,131 +14,93 @@ class UpdateBehaviour(Enum):
     OVERWRITE = "OVERWRITE"
 
 
-@dataclass
-class Column:
+class Owner(BaseModel):
+    name: str
+    email: str
+
+
+class SchemaMetadata(BaseModel):
+    domain: str
+    dataset: str
+    sensitivity: SensitivityLevel
+    owners: List[Owner]
+    version: Optional[int] = None
+    key_value_tags: Optional[Dict[str, str]] = None
+    key_only_tags: Optional[List[str]] = None
+
+    class Config:
+        use_enum_values = True
+
+
+class Column(BaseModel):
     name: str
     data_type: str
     partition_index: Optional[int] = None
     allow_null: bool = True
     format: Optional[str] = None
 
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "data_type": self.data_type,
-            "partition_index": self.partition_index,
-            "allow_null": self.allow_null,
-            "format": self.format,
-        }
 
+class Schema(BaseModel):
+    """
+    A Schema is a Pydantic class representing a rAPId schema. It allows you to programmatically define
+    a schema to generate, create and update within rAPId.
 
-@dataclass
-class Owner:
-    name: str
-    email: str
+    Example:
+        A Schema can be created by setting the values literally into the classes like
+        example below::
 
-    def to_dict(self):
-        return {"name": self.name, "email": self.email}
+            schema = Schema(
+                metadata=SchemaMetadata(
+                    domain="domain",
+                    dataset="dataset",
+                    sensitivity=SensitivityLevel.PUBLIC,
+                    owners=[Owner(name="test", version="test@email.com")]
+                ),
+                columns=[
+                    Column(
+                        name="column_a",
+                        data_type="Float64",
+                        allow_null=True
+                    )
+                ]
+            )
 
+        The alternative is you can create a schema directly from a Python dictionary
+        specifying the values like in the example below::
 
-@dataclass
-class SchemaMetadata:
-    domain: str
-    dataset: str
-    _sensitivity: SensitivityLevel
-    owners: List[Owner]
-    version: Optional[int] = None
-    key_value_tags: Optional[Dict[str, str]] = None
-    key_only_tags: Optional[List[str]] = None
+            schema = Schema(
+                **{
+                    "metadata": {
+                        ....
+                    },
+                    "columns": {
+                        ....
+                    }
+                }
+            )
+    """
 
-    @property
-    def sensitivity(self) -> str:
-        return self._sensitivity.value
-
-    def to_dict(self):
-        return {
-            key: value
-            for key, value in {
-                "domain": self.domain,
-                "dataset": self.dataset,
-                "sensitivity": self.sensitivity,
-                "version": self.version,
-                "key_value_tags": self.key_value_tags,
-                "key_only_tags": self.key_only_tags,
-                "owners": [owner.to_dict() for owner in self.owners],
-            }.items()
-            if value
-        }
-
-
-class Schema:
     metadata: SchemaMetadata
     columns: List[Column]
 
-    def __init__(
-        self, metadata: SchemaMetadata, columns: Union[List[Column], List[dict]]
-    ):
-        self.metadata = metadata
-        self.columns = self._format_columns(columns)
+    def are_columns_the_same(
+        self, new_columns: Union[List[Column], List[dict]]
+    ) -> bool:
 
-    def _format_columns(self, columns: Union[List[Column], List[dict]]) -> List[Column]:
-        if all(isinstance(col, Column) for col in columns):
-            return columns
+        """
+        Checks that for a given Schema, does it's columns match the columns being passed
+        into this function.
 
-        if all(isinstance(col, dict) for col in columns):
-            return [
-                Column(
-                    name=col["name"],
-                    partition_index=col["partition_index"],
-                    data_type=col["data_type"],
-                    allow_null=col["allow_null"],
-                    format=col["format"],
-                )
-                for col in columns
-            ]
+        Args:
+            new_columns (Union[List[Column], List[dict]]): The new columns can be passed as either
+                a list of Column defined classes or as a list of Python dictionaries representing
+                the values. If the later is chosen and there is an incorrect value passed the function
+                will raise a :class:`rapid.exceptions.ColumnNotDifferentException`.
 
-        raise SchemaInitialisationException("The columns are not of the expected type")
+        Returns:
+            bool: If the new columns match the columns in the Schema
+        """
+        if all(isinstance(col, dict) for col in new_columns):
+            new_columns = [Column(**col) for col in new_columns]
 
-    def set_columns(self, columns: List[Column]):
-        self.columns = columns
-
-    def to_dict(self):
-        return {
-            "metadata": self.metadata.to_dict(),
-            "columns": [column.to_dict() for column in self.columns],
-        }
-
-    def are_columns_the_same(self, columns_b: Union[List[Column], List[dict]]):
-        diff = DeepDiff(
-            [x.to_dict() for x in self.columns],
-            [x.to_dict() for x in self._format_columns(columns_b)],
-            ignore_order=True,
-        )
-        if not diff:
-            return True
-        return False
-
-    def create(self, rapid: Rapid):
-        schema = self.to_dict()
-        response = requests.post(
-            f"{rapid.auth.url}/schema",
-            data=json.dumps(schema),
-            headers=rapid.generate_headers(),
-            timeout=TIMEOUT_PERIOD,
-        )
-        if response.status_code == 200:
-            pass
-        elif response.status_code == 409:
-            raise SchemaAlreadyExistsException("The schema already exists")
-        else:
-            data = json.loads(response.content.decode("utf-8"))
-            raise SchemaCreateFailedException("Could not create the schema", data)
-
-    def update(self, rapid: Rapid):
-        schema = self.to_dict()
-        requests.put(
-            f"{rapid.auth.url}/schema",
-            data=json.dumps(schema),
-            headers=rapid.generate_headers(),
-            timeout=TIMEOUT_PERIOD,
-        )
+        return self.columns == new_columns

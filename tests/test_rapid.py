@@ -72,6 +72,43 @@ class TestRapid:
             assert rapid.fetch_job_progress.call_args_list == expected_calls
 
     @pytest.mark.usefixtures("requests_mock", "rapid")
+    def test_download_dataframe_success(self, requests_mock: Mocker, rapid: Rapid):
+        domain = "test_domain"
+        dataset = "test_dataset"
+        requests_mock.post(
+            f"{RAPID_URL}/datasets/{domain}/{dataset}/query?version=1",
+            json={
+                "0": {"column1": "value1", "column2": "value2"},
+                "2": {"column1": "value3", "column2": "value4"},
+                "3": {"column1": "value5", "column2": "value6"},
+            },
+            status_code=200,
+        )
+        res = rapid.download_dataframe(domain, dataset)
+        assert res.shape == (3, 2)
+        assert list(res.columns) == ["column1", "column2"]
+
+    @pytest.mark.usefixtures("requests_mock", "rapid")
+    def test_download_dataframe_success_with_version(
+        self, requests_mock: Mocker, rapid: Rapid
+    ):
+        domain = "test_domain"
+        dataset = "test_dataset"
+        version = "5"
+        requests_mock.post(
+            f"{RAPID_URL}/datasets/{domain}/{dataset}/query?version=5",
+            json={
+                "0": {"column1": "value1", "column2": "value2"},
+                "2": {"column1": "value3", "column2": "value4"},
+                "3": {"column1": "value5", "column2": "value6"},
+            },
+            status_code=200,
+        )
+        res = rapid.download_dataframe(domain, dataset, version)
+        assert res.shape == (3, 2)
+        assert list(res.columns) == ["column1", "column2"]
+
+    @pytest.mark.usefixtures("requests_mock", "rapid")
     def test_upload_dataframe_success_after_waiting(
         self, requests_mock: Mocker, rapid: Rapid
     ):

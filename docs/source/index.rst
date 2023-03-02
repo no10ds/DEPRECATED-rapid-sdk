@@ -67,6 +67,46 @@ such as domain, dataset and lists of it's columns.::
    print("Domain ", schema.metadata.domain)
    print("Columns ", schema.columns.dict())
 
+Download Data
+-------------
+
+The sdk provides an easy way to automatically download a specific dataset based on an optional version and query. The function returns
+the data in a pandas DataFrame format. See the example below for a basic example::
+
+      import pandas as pd
+      from rapid import Rapid
+
+      data = rapid.download_dataframe(
+         domain="domain",
+         dataset="dataset",
+         version=1
+      )
+
+      print(data.info())
+
+It is possible to pass a query to get more granular information about a dataset. We provide a Pydantic query class that can get passed
+into the download function. For more information on writing rAPId compatiable queries see `the documentation <https://github.com/no10ds/rapid-api/blob/main/docs/guides/usage/usage.md#how-to-construct-a-query-object>`
+and the example::
+
+   import pandas as pd
+   from rapid import Rapid
+   from rapid.items.query import Query
+
+   query = Query(
+      select_columns=["column_to_select_one", "column_to_select_two"],
+      limit="100"
+   )
+
+   data = rapid.download_dataframe(
+      domain="domain",
+      dataset="dataset",
+      verson=1,
+      query=query
+   )
+
+   print(data.info())
+
+
 API Documentation
 =================
 

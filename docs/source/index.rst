@@ -22,7 +22,7 @@ Once installed into your project the first thing you will want to do is create a
 
 In order for your code to connect to rAPId you will need your rAPId `client_id`, `client_secret` and `url` values. By default the
 authentication module will try and read these from your environment variables as `RAPID_CLIENT_ID`, `RAPID_CLIENT_SECRET` and `RAPID_URL`
-respectively. Alternatively you can create your own instance of the rAPId authentication class.::
+respectively. Alternatively you can create your own instance of the rAPId authentication class::
 
    from rapid import Rapid
    from rapid import RapidAuth
@@ -44,7 +44,7 @@ Generate Schema
 
 The sdk provides an easy and intuitive way to generate a schema based on a Pandas DataFrame you might have. The function returns
 a custom Pydantic Schema class type that matches a valid rAPId schema. This can be used to programmatic information of the schema
-such as domain, dataset and lists of it's columns.::
+such as domain, dataset and lists of it's columns::
 
    import pandas as pd
    from rapid import Rapid
@@ -85,7 +85,7 @@ the data in a pandas DataFrame format. See the example below for a basic example
       print(data.info())
 
 It is possible to pass a query to get more granular information about a dataset. We provide a Pydantic query class that can get passed
-into the download function. For more information on writing rAPId compatiable queries see `the documentation <https://github.com/no10ds/rapid-api/blob/main/docs/guides/usage/usage.md#how-to-construct-a-query-object>`
+into the download function. For more information on writing rAPId compatiable queries see `the documentation <https://github.com/no10ds/rapid-api/blob/main/docs/guides/usage/usage.md#how-to-construct-a-query-object>`_
 and the example::
 
    import pandas as pd
@@ -123,7 +123,7 @@ Useful Patterns
 ===============
 With the sdk we ship useful functions that handle common programmatic functionality for rAPId.
 
-Below is an simple example for uploading a Pandas DataFrame to the API.::
+Below is an simple example for uploading a Pandas DataFrame to the API::
 
    import pandas as pd
    from rapid import Rapid
@@ -143,7 +143,7 @@ Below is an simple example for uploading a Pandas DataFrame to the API.::
     domain='mydomain',
     dataset='mydataset',
     owners=[Owner(name="myname", email="myemail@email.com")],
-    _sensitivity=SensitivityLevel.PUBLIC.value
+    sensitivity=SensitivityLevel.PUBLIC.value
    )
 
    try:
@@ -157,7 +157,7 @@ Below is an simple example for uploading a Pandas DataFrame to the API.::
       print('Incorrect DataFrame schema')
 
 Now going forward say for instance we now expect that for column c we can expect some values
-to be floating points, we want to update the schema.::
+to be floating points, we want to update the schema::
 
    import pandas as pd
    from rapid import Rapid

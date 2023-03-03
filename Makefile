@@ -20,20 +20,29 @@ reqs:
 
 setup: python precommit venv
 
+test:
+	pytest -v
+
 # Deploy the package
+release:
+	git checkout ${commit}
+	git tag -a "${version}" -m "Release tag for version ${version}"
+	git checkout -
+	git push origin ${version}
+	python get_latest_release_changelog.py
+	rm -rf latest_release_changelog.md
+
+deploy/pypi:
+	rm -rf ./dist
+	python3 setup.py sdist
+	twine upload dist/*
 
 deploy/test:
 	rm -rf ./dist
 	python3 setup.py sdist
 	twine upload --repository testpypi dist/*
 
-deploy/release:
-	rm -rf ./dist
-	python3 setup.py sdist
-	twine upload dist/*
-
 documentation/build:
-	sphinx-apidoc -o ./docs/source ./rapid
 	cd ./docs && $(MAKE) html
 
 documentation/serve:

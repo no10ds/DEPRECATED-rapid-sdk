@@ -4,7 +4,7 @@ from pandas import DataFrame
 from requests_mock import Mocker
 
 from rapid.items.schema import Owner, SchemaMetadata, SensitivityLevel, Column
-from rapid.utils.data import upload_and_create_dataframe, update_schema_dataframe
+from rapid.patterns.data import upload_and_create_dataframe, update_schema_dataframe
 from rapid.exceptions import (
     ColumnNotDifferentException,
     DataFrameUploadValidationException,
@@ -96,7 +96,7 @@ class TestUtils:
         with pytest.raises(DataFrameUploadValidationException):
             upload_and_create_dataframe(rapid, metadata, df)
 
-    @patch("rapid.utils.data.update_schema_dataframe")
+    @patch("rapid.patterns.data.update_schema_dataframe")
     def test_upload_and_create_dataframe_upgrade_schema_on_fail(
         self, mocked_update_schema_dataframe, requests_mock: Mocker, rapid: Rapid
     ):

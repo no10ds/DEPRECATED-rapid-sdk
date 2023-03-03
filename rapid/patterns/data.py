@@ -12,24 +12,18 @@ def upload_and_create_dataframe(
     rapid: Rapid, metadata: SchemaMetadata, df: DataFrame, upgrade_schema_on_fail=False
 ):
     """
-    Generates a schema for a pandas DataFrame and a specified dataset in the API,
-    creates the schema in the API, and uploads the DataFrame to the dataset.
+    Generates a schema and dataset from a pandas Dataframe. The function first creates the schema
+    using the API and the uploads the DataFrame to this schema, uploading the data to rAPId.
 
     Args:
         rapid (Rapid): An instance of the rAPId SDK's main class.
-        metadata (SchemaMetadata): The metadata for the schema to be created and the dataset
-        to upload the DataFrame to.
-
+        metadata (SchemaMetadata): The metadata for the schema to be created and the dataset to upload the DataFrame to.ß
         df (DataFrame): The pandas DataFrame to generate a schema for and upload to the dataset.
-        upgrade_schema_on_fail (bool, optional): Whether to upgrade the schema if the
-        DataFrame's schema is incorrect. Defaults to False.
+        upgrade_schema_on_fail (bool, optional): Whether to upgrade the schema if the DataFrame's schema is incorrect. Defaults to False.
 
     Raises:
-        DataFrameUploadValidationException: If the DataFrame's schema is incorrect and
-        upgrade_schema_on_fail is False.
-
-        Exception: If an error occurs while generating the schema, creating the schema,
-        or uploading the DataFrame.
+        :class:`rapid.exceptions.DataFrameUploadValidationException`: If the DataFrame's schema is incorrect and upgrade_schema_on_fail is False.
+        Exception: If an error occurs while generating the schema, creating the schema, or uploading the DataFrame.
     """
     schema = rapid.generate_schema(
         df, metadata.domain, metadata.dataset, metadata.sensitivity
@@ -37,13 +31,13 @@ def upload_and_create_dataframe(
     try:
         Schema(metadata, schema["columns"]).create(rapid)
         rapid.upload_dataframe(metadata.domain, metadata.dataset, df)
-    except DataFrameUploadValidationException as e:
+    except DataFrameUploadValidationException as exception:
         if upgrade_schema_on_fail:
             update_schema_dataframe(rapid, metadata, df, schema["columns"])
         else:
-            raise e
-    except Exception as e:
-        raise e
+            raise exception
+    except Exception as exception:
+        raise exception
 
 
 def update_schema_dataframe(
@@ -57,18 +51,13 @@ def update_schema_dataframe(
 
     Args:
         rapid (Rapid): An instance of the rAPId SDK's main class.
-        metadata (SchemaMetadata): The metadata for the schema to be updated
-        and the dataset the DataFrame belongs to.
-        df (DataFrame): The pandas DataFrame to generate updated schema columns from.
-        new_columns (Union[List[Column], List[dict]]): The new schema columns
-        to update the schema with.
+        metadata (SchemaMetadata): The metadata for the schema to be updated and the dataset the DataFrame belongs to.
+        df (DataFrame): The pandas DataFrame to generate the original schema columns from.
+        new_columns (Union[List[Column], List[dict]]): The new schema columns to update the schema with.
 
     Raises:
-        ColumnNotDifferentException: If the new schema columns are the same as
-        the existing schema columns.
-
-        Exception: If an error occurs while generating the schema information,
-        updating the schema, or comparing the schema columns.
+        :class:`rapid.exceptions.ColumnNotDifferentException`: If the new schema columns are the same as the existing schema columns.
+        Exception: If an error occurs while generating the schema information, updating the schema, or comparing the schema columns.
     """
     info = rapid.generate_info(df, metadata.domain, metadata.dataset)
     try:

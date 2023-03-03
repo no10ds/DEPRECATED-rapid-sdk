@@ -16,6 +16,16 @@ class RapidAuth:
     def __init__(
         self, client_id: str = None, client_secret: str = None, url: str = None
     ) -> None:
+        """
+        The rAPId auth class is a helper authentication class used to connect to your rAPId API instance. The authentication values
+        can be passed into the constructor but they default to reading them from your environment variables.
+
+        Args:
+            client_id (str, optional): Your rAPId API client id token. Defaults to None.
+            client_secret (str, optional): Your rAPId API client secret token. Defaults to None.
+            url (str, optional): The url where your rAPId API is hosted. Defaults to None.
+        """
+
         self.client_id = self.evaluate_inputs(client_id, RAPID_CLIENT_ID)
         self.client_secret = self.evaluate_inputs(client_secret, RAPID_CLIENT_SECRET)
         self.url = self.evaluate_inputs(url, RAPID_URL)
@@ -55,6 +65,15 @@ class RapidAuth:
         return response
 
     def validate_credentials(self):
+        """
+        Tests authentication to the rAPId API.
+
+        Raises:
+            :class:`rapid.exceptions.AuthenticationErrorException`: If no authorisation can be created.
+
+        Returns:
+            None: If authentication was successful.
+        """
         if self.request_token().status_code != 200:
             raise AuthenticationErrorException(
                 "Auth not configured, could not connect to instance of rAPId"

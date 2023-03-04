@@ -76,7 +76,7 @@ class TestRapid:
         domain = "test_domain"
         dataset = "test_dataset"
         requests_mock.post(
-            f"{RAPID_URL}/datasets/{domain}/{dataset}/query?version=1",
+            f"{RAPID_URL}/datasets/{domain}/{dataset}/query",
             json={
                 "0": {"column1": "value1", "column2": "value2"},
                 "2": {"column1": "value3", "column2": "value4"},

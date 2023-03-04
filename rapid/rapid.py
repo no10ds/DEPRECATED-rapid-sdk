@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Optional
 import json
 import time
 import requests
@@ -102,7 +102,11 @@ class Rapid:
             time.sleep(interval)
 
     def download_dataframe(
-        self, domain: str, dataset: str, version: int = 1, query: Query = Query()
+        self,
+        domain: str,
+        dataset: str,
+        version: Optional[int] = None,
+        query: Query = Query(),
     ) -> DataFrame:
         """
         Downloads data to a pandas DataFrame based on the domain, dataset and version passed.
@@ -110,7 +114,7 @@ class Rapid:
         Args:
             domain (str): The domain of the dataset to download the DataFrame from.
             dataset (str): The dataset from the domain to download the DataFrame from.
-            version (int, optional): Version of the dataset to download. Defaults to 1.
+            version (int, optional): Version of the dataset to download.
             query (:class:`rapid.items.query.Query`, optional): An optional query type to provide when downloading data. Defaults to empty.
 
         Raises:
@@ -121,7 +125,9 @@ class Rapid:
         Returns:
             DataFrame: A pandas DataFrame of the data
         """
-        url = f"{self.auth.url}/datasets/{domain}/{dataset}/query?version={version}"
+        url = f"{self.auth.url}/datasets/{domain}/{dataset}/query"
+        if version is not None:
+            url = f"{url}?version={version}"
         response = requests.post(
             url,
             headers=self.generate_headers(),

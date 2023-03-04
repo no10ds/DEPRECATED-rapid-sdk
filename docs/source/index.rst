@@ -39,8 +39,48 @@ values directly to the class as follows.::
       url="RAPID_URL"
    )
 
-Useful Patterns
+Generate Schema
 ---------------
+
+The sdk provides an easy and intuitive way to generate a schema based on a Pandas DataFrame you might have. The function returns
+a custom Pydantic Schema class type that matches a valid rAPId schema. This can be used to programmatic information of the schema
+such as domain, dataset and lists of it's columns.::
+
+   import pandas as pd
+   from rapid import Rapid
+
+   rapid = Rapid()
+
+   raw_data = [
+      {"a": 1, "b": 2, "c": 3},
+      {"a": 10, "b": 20, "c": 30}
+   ]
+   df = pd.DataFrame(raw_data)
+
+   schema = rapid.generate_schema(
+      df=df,
+      domain="domain",
+      dataset="dataset",
+      sensitivity="PUBLIC"
+   )
+
+   print("Domain ", schema.metadata.domain)
+   print("Columns ", schema.columns.dict())
+
+API Documentation
+=================
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   api/rapid
+   api/auth
+   api/items
+   api/patterns
+
+Useful Patterns
+===============
 With the sdk we ship useful functions that handle common programmatic functionality for rAPId.
 
 Below is an simple example for uploading a Pandas DataFrame to the API.::
@@ -114,18 +154,6 @@ to be floating points, we want to update the schema.::
       )
    except ColumnNotDifferentException:
       print('Columns not different.')
-
-API Documentation
-=================
-
-.. toctree::
-   :maxdepth: 2
-   :glob:
-
-   api/rapid
-   api/auth
-   api/items
-   api/patterns
 
 Search
 ======

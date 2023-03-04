@@ -21,7 +21,7 @@ reqs:
 setup: python precommit venv
 
 test:
-	pytest -v
+	pytest -vv -s
 
 # Deploy the package
 release:

@@ -13,10 +13,10 @@ from rapid import Rapid
 from tests.conftest import RAPID_URL
 
 metadata = SchemaMetadata(
-    "test",
-    "rapid_sdk",
-    SensitivityLevel.PUBLIC,
-    owners=[Owner("test", "test@email.com")],
+    domain="test",
+    dataset="rapid_sdk",
+    sensitivity=SensitivityLevel.PUBLIC,
+    owners=[Owner(name="test", email="test@email.com")],
 )
 
 mock_response = {

@@ -30,6 +30,12 @@ class DatasetInfoFailedException(Exception):
         self.data = data
 
 
+class DatasetNotFoundException(Exception):
+    def __init__(self, message, data):
+        self.message = message
+        self.data = data
+
+
 class SchemaGenerationFailedException(Exception):
     def __init__(self, message, data):
         self.message = message

@@ -1,13 +1,15 @@
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Optional
 import json
 import time
 import requests
 
+import pandas as pd
 from pandas import DataFrame
 
 from rapid.auth import RapidAuth
 from rapid.items.schema import Schema
+from rapid.items.query import Query
 from rapid.utils.constants import TIMEOUT_PERIOD
 from rapid.exceptions import (
     DataFrameUploadFailedException,
@@ -19,6 +21,7 @@ from rapid.exceptions import (
     SchemaAlreadyExistsException,
     UnableToFetchJobStatusException,
     DatasetInfoFailedException,
+    DatasetNotFoundException,
 )
 
 
@@ -98,8 +101,49 @@ class Rapid:
                 raise JobFailedException("Upload failed", progress)
             time.sleep(interval)
 
+    def download_dataframe(
+        self,
+        domain: str,
+        dataset: str,
+        version: Optional[int] = None,
+        query: Query = Query(),
+    ) -> DataFrame:
+        """
+        Downloads data to a pandas DataFrame based on the domain, dataset and version passed.
+
+        Args:
+            domain (str): The domain of the dataset to download the DataFrame from.
+            dataset (str): The dataset from the domain to download the DataFrame from.
+            version (int, optional): Version of the dataset to download.
+            query (:class:`rapid.items.query.Query`, optional): An optional query type to provide when downloading data. Defaults to empty.
+
+        Raises:
+            DatasetNotFoundException: :class:`rapid.exceptions.DatasetNotFoundException`: If the
+                specificed domain, dataset and version to download does not exist in the rAPId instance
+                we throw the dataset not found exception.
+
+        Returns:
+            DataFrame: A pandas DataFrame of the data
+        """
+        url = f"{self.auth.url}/datasets/{domain}/{dataset}/query"
+        if version is not None:
+            url = f"{url}?version={version}"
+        response = requests.post(
+            url,
+            headers=self.generate_headers(),
+            data=json.dumps(query.dict(exclude_none=True)),
+            timeout=TIMEOUT_PERIOD,
+        )
+        data = json.loads(response.content.decode("utf-8"))
+        if response.status_code == 200:
+            return pd.read_json(json.dumps(data), orient="index")
+
+        raise DatasetNotFoundException(
+            f"Could not find dataset, {domain}/{dataset} to download", data
+        )
+
     def upload_dataframe(
-        self, domain, dataset, df: DataFrame, wait_to_complete: bool = True
+        self, domain: str, dataset: str, df: DataFrame, wait_to_complete: bool = True
     ):
         """
         Uploads a pandas DataFrame to a specified dataset in the API.

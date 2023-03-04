@@ -4,14 +4,46 @@ import pytest
 from requests_mock import Mocker
 
 from rapid import Rapid
+from rapid.items.schema import Schema
 from rapid.exceptions import (
     DataFrameUploadFailedException,
     JobFailedException,
     SchemaGenerationFailedException,
+    SchemaAlreadyExistsException,
+    SchemaCreateFailedException,
+    SchemaUpdateFailedException,
     UnableToFetchJobStatusException,
     DatasetInfoFailedException,
 )
 from .conftest import RAPID_URL, RAPID_TOKEN
+
+DUMMY_SCHEMA = {
+    "metadata": {
+        "domain": "test",
+        "dataset": "rapid_sdk",
+        "sensitivity": "PUBLIC",
+        "owners": [{"name": "Test", "email": "test@email.com"}],
+        "version": None,
+        "key_value_tags": None,
+        "key_only_tags": None,
+    },
+    "columns": [
+        {
+            "name": "column_a",
+            "data_type": "object",
+            "partition_index": None,
+            "allow_null": True,
+            "format": None,
+        },
+        {
+            "name": "column_b",
+            "data_type": "object",
+            "partition_index": None,
+            "allow_null": True,
+            "format": None,
+        },
+    ],
+}
 
 
 class TestRapid:
@@ -226,3 +258,45 @@ class TestRapid:
         )
         with pytest.raises(SchemaGenerationFailedException):
             rapid.generate_schema(df, domain, dataset, sensitivity)
+
+    @pytest.mark.usefixtures("requests_mock", "rapid")
+    def test_create_schema_success(self, requests_mock: Mocker, rapid: Rapid):
+        schema = Schema(**DUMMY_SCHEMA)
+        mocked_response = {"data": "dummy"}
+        requests_mock.post(f"{RAPID_URL}/schema", json=mocked_response, status_code=200)
+        res = rapid.create_schema(schema)
+        assert res is None
+
+    @pytest.mark.usefixtures("requests_mock", "rapid")
+    def test_create_schema_failure_schema_already_exists(
+        self, requests_mock: Mocker, rapid: Rapid
+    ):
+        schema = Schema(**DUMMY_SCHEMA)
+        mocked_response = {"data": "dummy"}
+        requests_mock.post(f"{RAPID_URL}/schema", json=mocked_response, status_code=409)
+        with pytest.raises(SchemaAlreadyExistsException):
+            rapid.create_schema(schema)
+
+    @pytest.mark.usefixtures("requests_mock", "rapid")
+    def test_create_schema_failure(self, requests_mock: Mocker, rapid: Rapid):
+        schema = Schema(**DUMMY_SCHEMA)
+        mocked_response = {"data": "dummy"}
+        requests_mock.post(f"{RAPID_URL}/schema", json=mocked_response, status_code=400)
+        with pytest.raises(SchemaCreateFailedException):
+            rapid.create_schema(schema)
+
+    @pytest.mark.usefixtures("requests_mock", "rapid")
+    def test_update_schema_success(self, requests_mock: Mocker, rapid: Rapid):
+        schema = Schema(**DUMMY_SCHEMA)
+        mocked_response = {"data": "dummy"}
+        requests_mock.put(f"{RAPID_URL}/schema", json=mocked_response, status_code=200)
+        res = rapid.update_schema(schema)
+        assert res == mocked_response
+
+    @pytest.mark.usefixtures("requests_mock", "rapid")
+    def test_update_schema_failure(self, requests_mock: Mocker, rapid: Rapid):
+        schema = Schema(**DUMMY_SCHEMA)
+        mocked_response = {"data": "dummy"}
+        requests_mock.put(f"{RAPID_URL}/schema", json=mocked_response, status_code=400)
+        with pytest.raises(SchemaUpdateFailedException):
+            rapid.update_schema(schema)

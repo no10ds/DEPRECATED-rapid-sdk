@@ -20,7 +20,7 @@ jobs:
           echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
           echo "TWINE_USERNAME=${{ secrets.TWINE_USERNAME_TEST }}" >> .env
           echo "TWINE_PASSWORD=${{ secrets.TWINE_PASSWORD_TEST }}" >> .env
-          echo "TWINE_NON_INTERACTIVE=${{ secrets.TWINE_NON_INTERACTIVE }}" >> .env
+          echo TWINE_NON_INTERACTIVE=${{ secrets.TWINE_NON_INTERACTIVE }} >> .env
 
       - name: Install Python
         uses: actions/setup-python@v4

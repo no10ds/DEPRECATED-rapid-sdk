@@ -1,3 +1,5 @@
+-include .env
+export
 PYTHON_VERSION=3.10.6
 
 # Setup commands
@@ -30,6 +32,7 @@ release:
 	git checkout -
 	git push origin ${version}
 	python get_latest_release_changelog.py
+	@gh release create ${version} -F latest_release_changelog.md
 	rm -rf latest_release_changelog.md
 
 deploy/pypi:

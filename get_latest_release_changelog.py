@@ -9,7 +9,7 @@ adding = False
 
 for line in changelog_lines:
     if re.match(
-        "##\\sv\\d+\\.\\d+\\.\\d+\\s-\\s_\\d{{4}}-\\d{{2}}-\\d{{2}}_$",  # noqa: F541
+        f"##\\sv\\d+\\.\\d+\\.\\d+\\s-\\s_\\d{{4}}-\\d{{2}}-\\d{{2}}_$",  # noqa: F541
         line,
     ):
         adding = not adding

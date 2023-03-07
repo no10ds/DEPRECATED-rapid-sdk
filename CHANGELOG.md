@@ -5,8 +5,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## v0.0.8 - _2023-03-07_
 
-### Changed
+See [v0.0.8] changes
 
+### Changed
 - Introduced new Pydantic class types for all `rapid.items`. This allows for type validation on the class creation and matches the types within the rAPId to help minimize errors.
 - `rapid.Rapid.generate_schema()` now returns the new Pydantic `rapid.items.Schema` class.
 - `rapid.Rapid.patterns` now includes common patterns that might be used for data manipulation tasks exploiting the sdk functions for easier use.
@@ -20,3 +21,5 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - New `rapid.items.Query` Pydantic class that allows for a programmatic definition of a rAPId dataset download.
 - New `rapid.Rapid.download_dataset` function. Returns the downloaded Pandas dataframe. This function makes use of the above `Query` class.
 - Improved unit testing coverage.
+
+[v0.0.8]: https://github.com/no10ds/rapid-api/compare/720ecd1fd6ce14fc37a3202133ce239419d48f1f...v0.0.8
